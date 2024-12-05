@@ -19,11 +19,11 @@ const client = new MongoClient(uri, {
 });
 
 async function searchCompanies(query, type) {
-  try {
+//   try {
     // Connect to MongoDB
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.connect();
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
   //   // Select the db and collection
   //   const database = client.db(db);
@@ -35,14 +35,14 @@ async function searchCompanies(query, type) {
   //   } else if (type === "company") {
   //     return await companies.find({ Company: query }).toArray();
   //   }
-  } catch (error) {
-    console.error(error);
-    throw new Error("Error fetching data from MongoDB");
-  } finally {
-    await client.close();
-  }
-  // Return a garbage value for testing
-  // return [{ Company: "TestCompany", Ticker: "TEST", Price: 0 }];
+//   } catch (error) {
+//     console.error(error);
+//     throw new Error("Error fetching data from MongoDB");
+//   } finally {
+//     await client.close();
+//   }
+//   Return a garbage value for testing
+  return [{ Company: "TestCompany", Ticker: "TEST", Price: 0 }];
 }
 
 http.createServer(async function (req, res) {
