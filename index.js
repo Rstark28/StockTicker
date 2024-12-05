@@ -1,74 +1,28 @@
-var http = require("http");
-var url = require("url");
-var fs = require("fs");
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const querystring = require("querystring");
+const { MongoClient } = require('mongodb');
 
 const uri = "mongodb+srv://robertstark:123@cluster0.ynfto.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const db = "Stock";
-const collection = "PublicCompanies";
+const client = new MongoClient(uri);
 
-const port = process.env.PORT || 3000;
+async function main() {
+    try {
+        // Use connect method to connect to the server
+        await client.connect();
+        console.log('Connected successfully to server');
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
+        // Get the admin database
+        const adminDb = client.db().admin();
 
-async function searchCompanies(query, type) {
-  try {
-    // Connect to MongoDB
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // List databases
+        const databasesList = await adminDb.listDatabases();
 
-  //   // Select the db and collection
-  //   const database = client.db(db);
-  //   const companies = database.collection(collection);
-
-  //   // Search for companies
-  //   if (type === "ticker") {
-  //     return await companies.find({ Ticker: query }).toArray();
-  //   } else if (type === "company") {
-  //     return await companies.find({ Company: query }).toArray();
-  //   }
-  } catch (error) {
-    console.error(error);
-    throw new Error("Error fetching data from MongoDB");
-  } finally {
-    await client.close();
-  }
-  // Return a garbage value for testing
-  // return [{ Company: "TestCompany", Ticker: "TEST", Price: 0 }];
+        console.log('Databases:');
+        databasesList.databases.forEach(db => console.log(` - ${db.name}`));
+    } catch (error) {
+        console.error('An error occurred:', error);
+    } finally {
+        // Close connection
+        await client.close();
+    }
 }
 
-http.createServer(async function (req, res) {
-    res.writeHead(200, { "Content-Type": "text/html" });
-    var urlObj = url.parse(req.url, true);
-    var path = urlObj.pathname;
-
-    // If the path is /, read the home.html file
-    if (path == "/") {
-        fs.readFile("views/home.html", function (err, data) {
-            if (err) {
-                res.write("Error reading html");
-                return res.end();
-            } else {
-                res.write(data);
-                return res.end();
-            }
-        });
-    }
-    // If the path is /process, process the search query
-    else if (path == "/process") {
-        const query = urlObj.query.query;
-        const type = urlObj.query.type;
-        const companies = await searchCompanies(query, type);
-        return res.end();
-    }
-}).listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-});
+main().catch(console.error);
