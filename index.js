@@ -1,52 +1,29 @@
 const http = require('http');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient } = require('mongodb');
 
-// MongoDB connection URI
-const uri = "mongodb+srv://robertstark:123@cluster0.ynfto.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
-// Create MongoDB client
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
-
+const uri = "mongodb+srv://robertstark:123@cluster0.ynfto.mongodb.net/?retryWrites=true&w=majority&ssl=true";
 const port = process.env.PORT || 3000;
 
-// Function to test MongoDB connection
 async function testMongoConnection() {
   try {
-    // Connect to MongoDB
+    const client = new MongoClient(uri);
     await client.connect();
-    console.log("Successfully connected to MongoDB!");
-
-    // Optionally, list databases to verify connection
-    const databasesList = await client.db().admin().listDatabases();
-    console.log("Databases:");
-    databasesList.databases.forEach((db) => console.log(` - ${db.name}`));
+    console.log("Connected to MongoDB!");
+    await client.close();
+    return "MongoDB connection successful!";
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error);
-  } finally {
-    await client.close();
+    return `MongoDB connection failed: ${error.message}`;
   }
 }
 
-// Create a basic HTTP server
 http.createServer(async (req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-
-  if (req.url === '/test-db') {
-    try {
-      await testMongoConnection();
-      res.end("MongoDB connection test passed! Check server logs for details.");
-    } catch (err) {
-      res.end("MongoDB connection test failed! Check server logs for details.");
-    }
+  if (req.url === "/test-db") {
+    const message = await testMongoConnection();
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(message);
   } else {
-    res.end("Hello! Visit /test-db to check MongoDB connection.");
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not Found");
   }
-}).listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+}).listen(port, () => console.log(`Server running on port ${port}`));
