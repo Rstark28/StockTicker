@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock App - Home</title>
+</head>
+
+<body>
+    <h1>Stock Lookup</h1>
+    <form action="/process" method="GET">
+        <label for="query">Enter a stock ticker or company name:</label><br>
+        <input type="text" id="query" name="query" required><br><br>
+        <input type="radio" id="ticker" name="type" value="ticker" required>
+        <label for="ticker">Ticker Symbol</label><br>
+        <input type="radio" id="company" name="type" value="company">
+        <label for="company">Company Name</label><br><br>
+        <button type="submit">Search</button>
+    </form>
+</body>
+
+</html>
