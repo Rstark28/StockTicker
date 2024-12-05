@@ -43,8 +43,6 @@ async function searchCompanies(query, type) {
   } finally {
     await client.close();
   }
-  //   Return a garbage value for testing
-  //   return [{ Company: "TestCompany", Ticker: "TEST", Price: 0 }];
 }
 
 http
