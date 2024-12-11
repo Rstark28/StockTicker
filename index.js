@@ -4,7 +4,8 @@ var fs = require("fs");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const querystring = require("querystring");
 
-const uri = "mongodb+srv://djangoproj210:123@cluster0.ghk5p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri =
+  "mongodb+srv://djangoproj210:123@cluster0.ghk5p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const db = "Stock";
 const collection = "PublicCompanies";
 
@@ -32,10 +33,15 @@ async function searchCompanies(query, type) {
     const companies = database.collection(collection);
 
     // Search for companies
+    // Regex allows for partial matches (e.g. Blizzard -> Blizzard, Activision Blizzard)
     if (type === "ticker") {
-      return await companies.find({ Ticker: query }).toArray();
+      return await companies
+        .find({ Ticker: { $regex: query, $options: "i" } })
+        .toArray();
     } else if (type === "company") {
-      return await companies.find({ Company: query }).toArray();
+      return await companies
+        .find({ Company: { $regex: query, $options: "i" } })
+        .toArray();
     }
   } catch (error) {
     console.error(error);
@@ -92,7 +98,7 @@ http
         // Read and add data to process.html
         const data = fs.readFileSync("views/process.html", "utf8");
         const htmlContent = data.replace(
-          "<!-- place data here -->",
+          "<!-- data -->",
           companyHtml
         );
         res.write(htmlContent);
